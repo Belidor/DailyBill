@@ -1,6 +1,8 @@
 import Foundation
 
-class DataManager {
+class DataManager: ObservableObject {
+    static let shared = DataManager()
+    var expenses: [Expense] = []
     private let fileName = "expenses.json"
     private let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 
@@ -25,4 +27,10 @@ class DataManager {
             return []
         }
     }
+    
+    func addExpense(name: String, cost: Double, date: Date) {
+            let newExpense = Expense(name: name, cost: cost, date: date)
+            expenses.append(newExpense)
+        }
+
 }

@@ -5,12 +5,13 @@ struct ExpenseListView: View {
     @State private var expenses: [Expense] = []
     @State private var currentDate: Date = Date()
     @State private var showJSONAlert = false
+    @State private var showJSONView = false
     
     let dataManager = DataManager()
     
     var body: some View {
         VStack {
-            Text("Траты на \(currentDate, style: .date)")
+            Text("\(currentDate, style: .date)")
                 .font(.largeTitle)
                 .padding(.top)
             
@@ -40,7 +41,7 @@ struct ExpenseListView: View {
             
             HStack {
                 Text("Итог")
-                    .font(.headline)
+                    .font(.title3)
                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 
                 Spacer()
@@ -55,7 +56,7 @@ struct ExpenseListView: View {
         .navigationBarTitle("", displayMode: .inline)
         .navigationBarItems(leading:
                                 Button(action: {
-            showJSONAlert.toggle()
+            showJSONView.toggle()
         }) {
             Image(systemName: "square.and.arrow.down")
         }, trailing:
@@ -64,7 +65,14 @@ struct ExpenseListView: View {
         }
         )
         .alert(isPresented: $showJSONAlert) {
-            Alert(title: Text("JSON трат за \(currentDate, style: .date)"), message: Text(getJSONString()), dismissButton: .default(Text("Закрыть")))
+            Alert(title: Text("JSON трат за \(currentDate, style: .date)"), message: Text(getJSONString()), primaryButton: .default(Text("Скопировать")) {
+                UIPasteboard.general.string = getJSONString()
+            }, secondaryButton: .default(Text("Показать")) {
+                showJSONView = true
+            })
+        }
+        .sheet(isPresented: $showJSONView) {
+            JSONView(jsonString: getJSONString())
         }
         .gesture(DragGesture(minimumDistance: 50)
             .onEnded { value in

@@ -1,62 +1,71 @@
 import SwiftUI
 
 struct AddExpenseView: View {
-    @Environment(\.presentationMode) var presentationMode
+    @ObservedObject var dataManager = DataManager.shared
+    
     @State private var name = ""
     @State private var cost = ""
-    @State private var date = Date()
-
-    let dataManager = DataManager()
-
+    @State private var isNameEmpty = false
+    @State private var isAlertShown = false
+    
     var body: some View {
         VStack {
             Text("Добавить трату")
-                .font(.largeTitle)
-                .padding(.top)
-
-            Text(date, style: .date)
-                .font(.headline)
-
-            VStack {
-                TextField("Наименование", text: $name)
-                    .padding()
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(10)
-                    .padding(.top)
-
-                TextField("Стоимость", text: $cost)
-                    .keyboardType(.decimalPad)
-                    .padding()
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(10)
-            }
-            .padding(.horizontal)
-
+                .font(.title)
+                .padding()
+            
+            TextField("Наименование", text: $name)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(5)
+            
+            TextField("Сумма", text: $cost)
+                .keyboardType(.decimalPad)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(5)
+            
             Button(action: {
-                if let costValue = Double(cost) {
-                    let expense = Expense(id: UUID(), name: name, cost: costValue, date: date)
-                    var expenses = dataManager.loadExpenses()
-                    expenses.append(expense)
-                    dataManager.saveExpenses(expenses)
+                let amount = Double(cost) ?? 0.0
+                let expense = Expense(name: name, cost: amount, date: Date())
+                
+                if expense.name.isEmpty {
+                    isNameEmpty = true
+                    return
                 }
-                presentationMode.wrappedValue.dismiss()
+                
+                isNameEmpty = false
+                
+                dataManager.saveExpenses([expense])
+                
+                name = ""
+                cost = ""
+                
+                isAlertShown = true
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    isAlertShown = false
+                }
+                
             }) {
                 Text("Добавить")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.green)
+                    .fontWeight(.semibold)
                     .foregroundColor(.white)
-                    .cornerRadius(10)
+                    .padding()
             }
-            .padding()
+            .background(isAlertShown ? Color.green : Color.blue)
+            .cornerRadius(5)
+            .padding(.top, 20)
+            .padding(.horizontal)
+            
+            Spacer()
         }
-        .background(Color.white.edgesIgnoringSafeArea(.all))
+        .padding()
         .navigationBarTitle("", displayMode: .inline)
-        .navigationBarItems(trailing:
-            NavigationLink(destination: ExpenseListView()) {
-                Image(systemName: "list.bullet")
-            }
-        )
-
+        .navigationBarHidden(false)
+        .navigationBarBackButtonHidden(false)
+        .alert(isPresented: $isNameEmpty) {
+            Alert(title: Text("Ошибка"), message: Text("Введите наименование траты"), dismissButton: .default(Text("OK")))
+        }
     }
 }

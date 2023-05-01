@@ -15,6 +15,7 @@
 		C1B8D87929FE604C008995F8 /* ExpenseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B8D87829FE604C008995F8 /* ExpenseListView.swift */; };
 		C1B8D87B29FE605E008995F8 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B8D87A29FE605E008995F8 /* DataManager.swift */; };
 		C1B8D87E29FE60AA008995F8 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B8D87D29FE60AA008995F8 /* Expense.swift */; };
+		C1B8D88F29FFDE54008995F8 /* JSONView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B8D88E29FFDE54008995F8 /* JSONView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		C1B8D87829FE604C008995F8 /* ExpenseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseListView.swift; sourceTree = "<group>"; };
 		C1B8D87A29FE605E008995F8 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		C1B8D87D29FE60AA008995F8 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
+		C1B8D88E29FFDE54008995F8 /* JSONView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				C1B8D86829FE5FCF008995F8 /* DailyBillApp.swift */,
 				C1B8D86A29FE5FCF008995F8 /* ContentView.swift */,
 				C1B8D87629FE6026008995F8 /* AddExpenseView.swift */,
+				C1B8D88E29FFDE54008995F8 /* JSONView.swift */,
 				C1B8D87829FE604C008995F8 /* ExpenseListView.swift */,
 				C1B8D87A29FE605E008995F8 /* DataManager.swift */,
 				C1B8D86C29FE5FD1008995F8 /* Assets.xcassets */,
@@ -159,6 +162,7 @@
 			files = (
 				C1B8D87E29FE60AA008995F8 /* Expense.swift in Sources */,
 				C1B8D87729FE6026008995F8 /* AddExpenseView.swift in Sources */,
+				C1B8D88F29FFDE54008995F8 /* JSONView.swift in Sources */,
 				C1B8D87B29FE605E008995F8 /* DataManager.swift in Sources */,
 				C1B8D86B29FE5FCF008995F8 /* ContentView.swift in Sources */,
 				C1B8D86929FE5FCF008995F8 /* DailyBillApp.swift in Sources */,

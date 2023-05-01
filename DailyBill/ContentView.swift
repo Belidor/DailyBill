@@ -3,28 +3,53 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) { // измените значение на 20 или любое другое значение по вашему усмотрению
-                NavigationLink(destination: AddExpenseView()) {
-                    Text("Добавить траты ➕")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(10)
+            ZStack {
+                Color(.systemGray6).edgesIgnoringSafeArea(.all)
+                VStack {
+                    Text("Daily Bill")
+                        .font(.largeTitle)
+                        .bold()
+                        .padding(.bottom, 50)
+                    
+                    VStack(spacing: 20) {
+                        NavigationLink(destination: AddExpenseView()) {
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundColor(Color(.systemBlue))
+                                    .imageScale(.large)
+                                Text("Добавить трату")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                        }
+                        
+                        NavigationLink(destination: ExpenseListView()) {
+                            HStack {
+                                Image(systemName: "list.bullet")
+                                    .foregroundColor(Color(.systemBlue))
+                                    .imageScale(.large)
+                                Text("Посмотреть траты")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 20)
+                    
+                    Spacer()
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
-                NavigationLink(destination: ExpenseListView()) {
-                    Text("Просмотр чеков🧾")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(10)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .padding(.horizontal, 50)
-            .background(Color.white.edgesIgnoringSafeArea(.all))
-            .navigationBarTitle("", displayMode: .inline)
             .navigationBarHidden(true)
         }
     }
