@@ -5,30 +5,36 @@ struct AddExpenseView: View {
     @State private var name: String = ""
     @State private var cost: String = ""
     @State private var date: Date = Date()
-
+    
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
-
+    
     let dataManager = DataManager()
     let costFormatter = NumberFormatter()
-
+    
     init() {
         costFormatter.numberStyle = .decimal
         costFormatter.maximumFractionDigits = 2
     }
-
+    
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("Название")) {
                     TextField("Введите название", text: $name)
                 }
-
+                
                 Section(header: Text("Стоимость")) {
                     TextField("Введите стоимость", text: $cost)
                         .keyboardType(.decimalPad)
+                        .onChange(of: cost) { newValue in
+                            let filteredValue = newValue.filter { "0123456789.".contains($0) }
+                            if filteredValue != newValue {
+                                cost = filteredValue
+                            }
+                        }
                 }
-
+                
                 Button(action: {
                     addExpense()
                 }) {
@@ -47,13 +53,13 @@ struct AddExpenseView: View {
             }
         }
     }
-
+    
     func addExpense() {
         if let costValue = costFormatter.number(from: cost)?.doubleValue {
             let expense = Expense(name: name, cost: costValue, date: date)
             let currentExpenses = dataManager.loadAllExpenses()
             dataManager.saveAllExpenses(currentExpenses + [expense])
-
+            
             // Очистить поля ввода после сохранения
             name = ""
             cost = ""
