@@ -6,6 +6,7 @@ struct ExpenseListView: View {
     @State private var currentDate: Date = Date()
     @State private var showJSONAlert = false
     @State private var showJSONView = false
+    @State private var showDeleteActionSheet = false
     
     let dataManager = DataManager()
     
@@ -36,7 +37,8 @@ struct ExpenseListView: View {
                 }
             }
             .onAppear {
-                expenses = dataManager.loadExpenses().filter { Calendar.current.isDate($0.date, inSameDayAs: currentDate) }
+                dataManager.loadExpenses()
+                expenses = dataManager.expenses.filter { Calendar.current.isDate($0.date, inSameDayAs: currentDate) }
             }
             
             HStack {
@@ -55,22 +57,40 @@ struct ExpenseListView: View {
         .background(Color(.systemGray6).edgesIgnoringSafeArea(.all))
         .navigationBarTitle("", displayMode: .inline)
         .navigationBarItems(leading:
-                                Button(action: {
-            showJSONView.toggle()
-        }) {
-            Image(systemName: "square.and.arrow.down")
+                                HStack {
+            Button(action: {
+                showJSONView.toggle()
+            }) {
+                Image(systemName: "square.and.arrow.down")
+            }
+            
+            Button(action: {
+                showDeleteActionSheet = true
+            }) {
+                Image(systemName: "trash")
+            }
         }, trailing:
                                 NavigationLink(destination: AddExpenseView()) {
             Image(systemName: "plus")
         }
         )
-        .alert(isPresented: $showJSONAlert) {
-            Alert(title: Text("JSON трат за \(currentDate, style: .date)"), message: Text(getJSONString()), primaryButton: .default(Text("Скопировать")) {
-                UIPasteboard.general.string = getJSONString()
-            }, secondaryButton: .default(Text("Показать")) {
-                showJSONView = true
-            })
-        }
+        .actionSheet(isPresented: $showDeleteActionSheet) {
+                    ActionSheet(title: Text("Удалить все траты за день?"),
+                                buttons: [
+                                    .destructive(Text("Удалить")) {
+                                        // Удаление трат
+                                        var allExpenses = dataManager.loadAllExpenses()
+                                        allExpenses.removeAll { expense in
+                                            Calendar.current.isDate(expense.date, inSameDayAs: currentDate)
+                                        }
+                                        dataManager.saveAllExpenses(allExpenses)
+                                        expenses = allExpenses.filter { Calendar.current.isDate($0.date, inSameDayAs: currentDate) }
+                                        dataManager.expenses = expenses
+                                    },
+                                    .cancel()
+                                ]
+                    )
+                }
         .sheet(isPresented: $showJSONView) {
             JSONView(jsonString: getJSONString())
         }
@@ -78,12 +98,14 @@ struct ExpenseListView: View {
             .onEnded { value in
                 if value.translation.width > 0 {
                     currentDate = Calendar.current.date(byAdding: .day, value: -1, to: currentDate) ?? currentDate
-                    expenses = dataManager.loadExpenses().filter { Calendar.current.isDate($0.date, inSameDayAs: currentDate) }
+                    dataManager.loadExpenses()
+                    expenses = dataManager.expenses.filter { Calendar.current.isDate($0.date, inSameDayAs: currentDate) }
                 } else if value.translation.width < 0 {
                     if !Calendar.current.isDateInToday(currentDate) {
                         currentDate = Calendar.current
                             .date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
-                        expenses = dataManager.loadExpenses().filter { Calendar.current.isDate($0.date, inSameDayAs: currentDate) }
+                        dataManager.loadExpenses()
+                        expenses = dataManager.expenses.filter { Calendar.current.isDate($0.date, inSameDayAs: currentDate) }
                     }
                 }
             }
@@ -103,4 +125,16 @@ struct ExpenseListView: View {
             return "Ошибка при конвертации данных в JSON"
         }
     }
+    
+    func deleteExpensesForDay() {
+        var allExpenses = dataManager.loadAllExpenses()
+        allExpenses.removeAll { expense in
+            Calendar.current.isDate(expense.date, inSameDayAs: currentDate)
+        }
+        dataManager.saveAllExpenses(allExpenses)
+        expenses = allExpenses.filter { Calendar.current.isDate($0.date, inSameDayAs: currentDate) }
+        dataManager.expenses = expenses
+        showDeleteActionSheet = true
+    }
+    
 }

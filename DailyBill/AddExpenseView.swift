@@ -1,71 +1,66 @@
 import SwiftUI
 
 struct AddExpenseView: View {
-    @ObservedObject var dataManager = DataManager.shared
-    
-    @State private var name = ""
-    @State private var cost = ""
-    @State private var isNameEmpty = false
-    @State private var isAlertShown = false
-    
+    @Environment(\.presentationMode) var presentationMode
+    @State private var name: String = ""
+    @State private var cost: String = ""
+    @State private var date: Date = Date()
+
+    @State private var showAlert: Bool = false
+    @State private var alertMessage: String = ""
+
+    let dataManager = DataManager()
+    let costFormatter = NumberFormatter()
+
+    init() {
+        costFormatter.numberStyle = .decimal
+        costFormatter.maximumFractionDigits = 2
+    }
+
     var body: some View {
-        VStack {
-            Text("Добавить трату")
-                .font(.title)
-                .padding()
-            
-            TextField("Наименование", text: $name)
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(5)
-            
-            TextField("Сумма", text: $cost)
-                .keyboardType(.decimalPad)
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(5)
-            
-            Button(action: {
-                let amount = Double(cost) ?? 0.0
-                let expense = Expense(name: name, cost: amount, date: Date())
-                
-                if expense.name.isEmpty {
-                    isNameEmpty = true
-                    return
+        NavigationView {
+            Form {
+                Section(header: Text("Название")) {
+                    TextField("Введите название", text: $name)
                 }
-                
-                isNameEmpty = false
-                
-                dataManager.saveExpenses([expense])
-                
-                name = ""
-                cost = ""
-                
-                isAlertShown = true
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    isAlertShown = false
+
+                Section(header: Text("Стоимость")) {
+                    TextField("Введите стоимость", text: $cost)
+                        .keyboardType(.decimalPad)
                 }
-                
-            }) {
-                Text("Добавить")
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding()
+
+                Button(action: {
+                    addExpense()
+                }) {
+                    Text("Добавить")
+                        .fontWeight(.bold)
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .padding()
+                        .background(Color.accentColor)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
             }
-            .background(isAlertShown ? Color.green : Color.blue)
-            .cornerRadius(5)
-            .padding(.top, 20)
-            .padding(.horizontal)
-            
-            Spacer()
+            .navigationBarTitle("Добавить трату", displayMode: .inline)
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text(alertMessage), dismissButton: .default(Text("OK")))
+            }
         }
-        .padding()
-        .navigationBarTitle("", displayMode: .inline)
-        .navigationBarHidden(false)
-        .navigationBarBackButtonHidden(false)
-        .alert(isPresented: $isNameEmpty) {
-            Alert(title: Text("Ошибка"), message: Text("Введите наименование траты"), dismissButton: .default(Text("OK")))
+    }
+
+    func addExpense() {
+        if let costValue = costFormatter.number(from: cost)?.doubleValue {
+            let expense = Expense(name: name, cost: costValue, date: date)
+            let currentExpenses = dataManager.loadAllExpenses()
+            dataManager.saveAllExpenses(currentExpenses + [expense])
+
+            // Очистить поля ввода после сохранения
+            name = ""
+            cost = ""
+        } else {
+            // Вывод ошибки
+            alertMessage = "Ошибка: неверный формат стоимости"
+            showAlert = true
         }
     }
 }

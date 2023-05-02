@@ -6,3 +6,8 @@ struct Expense: Codable, Identifiable {
     let cost: Double
     let date: Date
 }
+extension Expense: Equatable {
+    static func == (lhs: Expense, rhs: Expense) -> Bool {
+        lhs.id == rhs.id
+    }
+}
